@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>BDSwiss Test</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react@15.3.1/dist/react.min.js"></script>
+    <script src="https://unpkg.com/react-dom@15.3.1/dist/react-dom.min.js"></script>
+</head>
+<body>
+
+    <div id="react-app"></div>
+
+    <script>
+
+        // Components
+        var ContactForm = React.createClass({
+            propTypes: {
+                value: React.PropTypes.object.isRequired,
+                onChange: React.PropTypes.func.isRequired,
+            },
+
+            render: function () {
+                var oldContact = this.props.value;
+                var onChange = this.props.onChange;
+                var onClick = this.props.onClick;
+
+                return (
+                  React.createElement('form', { className: 'ContactForm' },
+                    React.createElement('input', {
+                        type: 'number',
+                        placeholder: 'e.g 0035796809196',
+                        value: this.props.value.phone,
+                        onChange: function (e) {
+                            onChange(Object.assign({}, oldContact, { phone: e.target.value }));
+                        },
+                    }),
+                    React.createElement('button', {
+                        type: 'button',
+                        onClick: function () {
+                            onClick();
+                        },
+                    }, "Submit")
+                  )
+                );
+            },
+        });
+
+        var ContactView = React.createClass({
+            propTypes: {
+                newContact: React.PropTypes.object.isRequired,
+            },
+
+            render: function () {
+                var tempData;
+                return (
+                  React.createElement('div', { className: 'ContactView' },
+                    React.createElement(ContactForm, {
+                        value: this.props.newContact,
+                        onChange: function (contact) { tempData = contact; },
+                        onClick: function (e) {
+                            var url = "http://localhost/api/sms-promotion";
+                            // Send the data using post
+                            $.ajax({
+                                url: url,
+                                type: "POST",
+                                data: JSON.stringify(tempData),
+                                contentType: "application/json",
+                                dataType: "json",
+                                success: function (data) {
+                                    console.log(data);
+                                }
+                            });
+                        }
+                    })
+                  )
+                );
+            },
+        });
+
+        // Model
+        var newContact = {};
+
+        // Initialize
+        ReactDOM.render(
+          React.createElement(ContactView, {
+              newContact: newContact,
+          }),
+          document.getElementById('react-app')
+        );
+
+    </script>
+
+</body>
+</html>
